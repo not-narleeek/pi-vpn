@@ -1,0 +1,54 @@
+# ── Dependencies / build artifacts ────────────────────────────────────────────
+node_modules/
+dist/
+build/
+*.tsbuildinfo
+
+# ── Packaging ─────────────────────────────────────────────────────────────────
+*.tgz
+*.tar.gz
+*.zip
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── AI agent state (never commit) ─────────────────────────────────────────────
+# pi (this project's own host agent)
+.pi/
+# Claude Code
+.claude/
+# Hermes agent
+.hermes/
+# Cursor / Copilot / Continue
+.cursor/
+.continue/
+# Generic agent working dirs
+.agent/
+agents/
+
+# ── OpenVPN runtime state (generated at runtime, never commit) ────────────────
+# The extension writes these to ~/.pi/vpn/ at runtime; ignore if ever copied here.
+logs/
+pid/
+state.json
+auth-*.txt
+*.ovpn
+*.opvn
+*.log
+*.pid
+
+# ── Secrets & local state ─────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ── OS / editor noise ─────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

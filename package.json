@@ -1,0 +1,62 @@
+{
+	"name": "pi-vpn",
+	"version": "0.1.0",
+	"description": "Drive OpenVPN from pi — bring up CTF & lab tunnels from an .ovpn with one command, a live status footer, and a daemon that survives pi quitting.",
+	"type": "module",
+	"keywords": [
+		"pi-package",
+		"vpn",
+		"openvpn",
+		"pi",
+		"security",
+		"ctf",
+		"bug-bounty",
+		"pentest",
+		"automation",
+		"ai-agent"
+	],
+	"license": "MIT",
+	"author": "not-narleeek",
+	"homepage": "https://github.com/not-narleeek/pi-vpn",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/not-narleeek/pi-vpn.git"
+	},
+	"bugs": {
+		"url": "https://github.com/not-narleeek/pi-vpn/issues"
+	},
+	"files": [
+		"extensions",
+		"docs",
+		"README.md",
+		"CHANGELOG.md",
+		"LICENSE"
+	],
+	"pi": {
+		"extensions": [
+			"./extensions/vpn.ts"
+		]
+	},
+	"scripts": {
+		"clean": "rm -rf node_modules dist",
+		"check": "tsc --noEmit -p tsconfig.json"
+	},
+	"devDependencies": {
+		"typescript": "^5.6.0"
+	},
+	"peerDependencies": {
+		"@earendil-works/pi-ai": "*",
+		"@earendil-works/pi-coding-agent": "*",
+		"@earendil-works/pi-tui": "*",
+		"typebox": "*"
+	},
+	"peerDependenciesMeta": {
+		"@earendil-works/pi-ai": { "optional": false },
+		"@earendil-works/pi-coding-agent": { "optional": false },
+		"@earendil-works/pi-tui": { "optional": false },
+		"typebox": { "optional": false }
+	},
+	"engines": {
+		"node": ">=18"
+	}
+}
