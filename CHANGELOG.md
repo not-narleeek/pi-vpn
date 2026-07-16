@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2025-07-16
+
+### Added — standalone TUI
+- `tui/vpn-core.ts` — framework-agnostic OpenVPN core (manager, privilege model,
+  credential handling, `.ovpn` discovery, log monitoring, reattach) with **no
+  runtime npm dependencies**. Shared conceptually with the pi extension.
+- `tui/vpn-tui.ts` — a keyboard-driven, **tmux-friendly** terminal UI:
+  responsive single-box layout (side-by-side at ≥100 cols, stacked below),
+  live status bar + rolling log, alternate-screen buffer, immediate re-render
+  on `SIGWINCH`/pane resize, honors `NO_COLOR`, and clean teardown on
+  `q`/`Esc`/`Ctrl-C`/`SIGTERM`.
+- CLI entry points: `pi-vpn` (TUI), `pi-vpn connect <file>`, `pi-vpn
+  disconnect`, `pi-vpn status`, `pi-vpn list`, with `--username`/`--password`/
+  `--auth-file` flags and masked credential prompts.
+- Bundled to a single zero-dependency `dist/pi-vpn.cjs` via esbuild (dev-only);
+  `npm run build` / auto-built on install via the `prepare` script.
+- `docs/TUI.md` — dedicated TUI documentation.
+
+### Fixed (pi extension)
+- `vpn_connect` tool passed `path` where `connectVPN` expects `configPath`, so
+  the **tool** path was broken at runtime (only the `/vpn connect` command
+  worked). Now remaps the parameter correctly. Found via `tsc` type-check.
+- `killPid(result.pid)` could receive `null`; now guarded.
+
+### Changed
+- Added `@types/node` and `esbuild` dev dependencies (build-time only).
+- `package.json`: `bin` entry for `pi-vpn`, `build`/`prepare` scripts,
+  `tsconfig.tui.json` for TUI type-checking. `npm run check` now type-checks
+  both the extension and the TUI.
+
 ## [0.1.0] - 2025-07-16
 
 ### Added

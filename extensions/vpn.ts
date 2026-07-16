@@ -616,7 +616,7 @@ export default function vpnExtension(pi: ExtensionAPI) {
 				return infoSnapshot();
 			}
 			// failure
-			killPid(result.pid);
+			if (result.pid) killPid(result.pid);
 			throw new Error(result.reason || "openvpn failed to connect");
 		} catch (err) {
 			const message = err instanceof Error ? err.message : String(err);
@@ -863,7 +863,17 @@ export default function vpnExtension(pi: ExtensionAPI) {
 		}),
 		async execute(_id, params, signal, _onUpdate, ctx) {
 			try {
-				const info = await connectVPN(ctx, params, signal ?? undefined);
+				const info = await connectVPN(
+				ctx,
+				{
+					configPath: params.path,
+					name: params.name,
+					username: params.username,
+					password: params.password,
+					authFile: params.authFile,
+				},
+				signal ?? undefined,
+			);
 				return {
 					content: [{ type: "text", text: formatInfo(info) }],
 					details: { vpn: info },

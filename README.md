@@ -1,8 +1,13 @@
 # pi-vpn
 
-> **Drive [OpenVPN](https://openvpn.net/) from [pi](https://pi.dev).** Bring up CTF & lab VPN tunnels from an `.ovpn` with a single command, watch a live status line tick by, and — crucially — let the tunnel keep running even after pi quits. Built for security researchers who spin up Hack The Box / TryHackMe / engagement VPNs every day.
+> **OpenVPN, two ways.** A [pi](https://pi.dev) package that drives OpenVPN from your AI agent *and* a standalone, tmux-friendly terminal UI. Bring up CTF & lab VPN tunnels from an `.ovpn` with a single command, watch a live status line tick by, and — crucially — let the tunnel keep running even after pi quits. Built for security researchers who spin up Hack The Box / TryHackMe / engagement VPNs every day.
 
-`pi-vpn` is a [pi package](https://pi.dev/packages) that exposes OpenVPN as four first-class agent tools plus a `/vpn` command, an interactive TUI status panel, and a live footer. It handles privileges, credentials, and log parsing for you, and runs the tunnel as a **detached daemon** so a long pentest session never dies when your agent restarts. One TypeScript extension, no dependencies, no helper scripts.
+`pi-vpn` ships **two surfaces over the same logic**:
+
+- a **pi extension** (`extensions/vpn.ts`) that exposes OpenVPN as four agent tools + a `/vpn` command + a live footer, and
+- a **standalone terminal UI** (`pi-vpn`) you can run in any shell or tmux pane — no agent required.
+
+Both handle privileges, credentials, and log parsing for you, and run the tunnel as a **detached daemon** so a long pentest session never dies when the process restarts. Zero runtime dependencies.
 
 ---
 
@@ -11,6 +16,7 @@
 - [What it does](#what-it-does)
 - [Requirements](#requirements)
 - [Install](#install)
+- [Standalone TUI](#standalone-tui)
 - [Quick start](#quick-start)
 - [Architecture](#architecture)
 - [How it works](#how-it-works)
@@ -122,6 +128,39 @@ pi -e git:github.com/not-narleeek/pi-vpn     # ephemeral, current run only
 
 ---
 
+## Standalone TUI
+
+Don't want to involve the agent? Run `pi-vpn` directly — a keyboard-driven,
+tmux-friendly VPN manager that lives in a pane:
+
+```
+┌ pi-vpn ─ 14:32:07 ──────────────────────────────────────────────────┐
+│🔒 htb  ● connected  10.10.14.23  tun0  12:03  pid 4821              │
+├──────────────────────────────┬────────────────────────────────────┤
+│ Configs                      │ Log                                │
+│ ▸ ● htb.ovpn                 │ … Initialization Sequence Compl…  │
+│   ○ thm.ovpn                 │                                    │
+├──────────────────────────────┴────────────────────────────────────┤
+│ ↑↓/jk select   ⏎ connect   d disconnect   r refresh   q quit        │
+└───────────────────────────────────────────────────────────────────┘
+```
+
+```bash
+git clone https://github.com/not-narleeek/pi-vpn && cd pi-vpn
+npm install      # builds dist/pi-vpn.cjs via the `prepare` script
+npm link         # optional: puts `pi-vpn` on PATH
+pi-vpn           # launch the TUI
+```
+
+It's a single zero-dependency bundled file, renders responsively (side-by-side
+at ≥100 cols, stacked below), re-renders instantly on pane resize, uses the
+alternate screen, and cleans up on exit. There's also a CLI for scripting:
+`pi-vpn connect <file>`, `disconnect`, `status`, `list`.
+
+➡️ **Full keybindings, flags, and tmux tips: [docs/TUI.md](docs/TUI.md).**
+
+---
+
 ## Quick start
 
 Inside a pi session, anywhere you have an `.ovpn`:
@@ -186,15 +225,25 @@ TypeScript file.
 ```
 pi-vpn/
 ├── extensions/
-│   └── vpn.ts          # the whole extension: tools, command, panel, footer
+│   └── vpn.ts          # pi extension: tools, /vpn command, panel, footer
+├── tui/
+│   ├── vpn-core.ts     # framework-agnostic OpenVPN core (manager, sudo, monitor)
+│   └── vpn-tui.ts      # standalone TUI renderer + CLI entry (→ dist/pi-vpn.cjs)
 ├── docs/
-│   └── ARCHITECTURE.md # lifecycle, privilege model, log parsing, reattach
-├── package.json        # pi manifest (pi.extensions) + npm metadata
-├── tsconfig.json       # local type-checking only (pi compiles the extension)
+│   ├── ARCHITECTURE.md # lifecycle, privilege model, log parsing, reattach
+│   └── TUI.md          # standalone TUI: keys, flags, tmux tips
+├── package.json        # pi manifest (pi.extensions) + `bin` + npm metadata
+├── tsconfig.json       # extension type-checking
+├── tsconfig.tui.json   # TUI type-checking
 ├── README.md
 ├── CHANGELOG.md
 └── LICENSE
 ```
+
+> The pi extension (`extensions/vpn.ts`) is compiled by pi at runtime — no
+> build step needed. The standalone CLI (`pi-vpn`) is bundled to
+> `dist/pi-vpn.cjs` via `npm run build` (esbuild, dev-only) and auto-built on
+> `npm install` through the `prepare` script.
 
 ---
 
