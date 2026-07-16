@@ -450,6 +450,7 @@ class App implements UiAdapter {
 			if (idx >= 0) this.selected = idx;
 		}
 		this.enterScreen();
+		this.render(); // paint immediately — don't wait for the first 1s tick
 		this.renderTimer = setInterval(() => {
 			this.manager.refreshIp();
 			this.render();
@@ -605,10 +606,19 @@ class App implements UiAdapter {
 	}
 
 	private paint(lines: string[]): void {
-		const out: string[] = [HOME];
-		for (const l of lines) out.push(l + "\x1b[K");
-		// clear any leftover below
-		stdout.write(out.join("\n") + "\n");
+		// Clamp to the real terminal height so a miscalculation can never overflow.
+		const maxRows = stdout.rows || 24;
+		const view = lines.length > maxRows ? lines.slice(0, maxRows) : lines;
+		// HOME (no newline after it), then each line + clear-to-EOL, separated by
+		// CRLF, with NO trailing newline — otherwise the cursor advances past the
+		// last row and the terminal scrolls the top off-screen.
+		// (Raw mode disables OPOST, so \n alone won't carriage-return; use \r\n.)
+		let buf = HOME;
+		for (let i = 0; i < view.length; i++) {
+			buf += view[i] + "\x1b[K";
+			if (i < view.length - 1) buf += "\r\n";
+		}
+		stdout.write(buf);
 	}
 
 	private enterScreen(): void {
